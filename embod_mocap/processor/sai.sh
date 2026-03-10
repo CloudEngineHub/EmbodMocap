@@ -1,0 +1,1 @@
+sai-cli process ${1} ${1} --key_frame_distance ${2:-0.05} #--preview3d

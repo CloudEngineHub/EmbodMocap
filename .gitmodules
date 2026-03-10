@@ -1,0 +1,9 @@
+[submodule "embod_mocap/thirdparty/ViTPose"]
+	path = embod_mocap/thirdparty/ViTPose
+	url = https://github.com/ViTAE-Transformer/ViTPose
+[submodule "embod_mocap/thirdparty/lang_sam"]
+	path = embod_mocap/thirdparty/lang_sam
+	url = https://github.com/luca-medeiros/lang-segment-anything
+[submodule "embod_mocap/thirdparty/lingbot_depth"]
+	path = embod_mocap/thirdparty/lingbot_depth
+	url = https://github.com/Robbyant/lingbot-depth
