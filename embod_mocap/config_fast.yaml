@@ -1,0 +1,111 @@
+steps:
+  sai: # 1
+    anchors:
+      - transforms.json
+    in_door:
+      key_frame_dist: 0.1
+    out_door:
+      key_frame_dist: 0.15
+  recon_scene: # 2
+    anchors:
+      - mesh_raw.ply
+    in_door:
+      depth_trunc: 4.0
+      sdf_trunc: 0.1
+      voxel_size: 0.02  # Increased from 0.01 to 0.02 for faster reconstruction
+      vggt_refine: false
+    out_door:
+      depth_trunc: 5.0
+      sdf_trunc: 0.1
+      voxel_size: 0.02  # Increased from 0.01 to 0.02
+      vggt_refine: false
+  rebuild_colmap: # 3
+    anchors:
+      - colmap/database.db
+  get_frames: # 4
+    anchors:
+      - raw1/images
+      - raw2/images
+    down_scale: 2
+  smooth_camera: # 5
+    anchors:
+      - raw1/cameras_sai.npz
+      - raw2/cameras_sai.npz
+  slice_views: # 6
+    anchors:
+      v1:
+        - cameras_sai_sliced.npz
+        - images
+      v2:
+        - cameras_sai_sliced.npz
+        - images
+    remove_raw_images: true
+    jpeg_quality: 3  # Reduced from 5 to 3 for smaller files and faster IO
+  process_smpl: # 7
+    anchors:
+      - v1/smpl_params.npz
+      - v2/smpl_params.npz
+  colmap_human_cam: # 8
+    anchors:
+      - v1/cameras_colmap.npz
+      - v2/cameras_colmap.npz
+    colmap_num: 200  # Reduced from 400 to 200 for faster registration
+    min_valid_ratio: 0.2
+  generate_keyframes: # 9
+    anchors:
+      - keyframes.json
+    min_tracks: 10
+    num_keyframes: 30  # Reduced from 50 to 30 to shrink downstream workload
+    min_keyframes: 15  # Reduced from 20 to 15
+  process_depth_mask: # 10
+    anchors:
+      - v1/depths_keyframe_refined
+      - v2/depths_keyframe_refined
+    need_all_depth_mask: false  # Process keyframes only (not all frames)
+    depth_refine_max_size: 720  # Reduced from 960 to 720 for faster refinement
+    depth_refine_chunk_size: 8  # Increased from 4 to 8 when VRAM allows
+    lang_sam_chunk_size: 10  # Increased from 5 to 10
+    lang_sam:
+      sam_type: null
+      sam_ckpt_path: null
+  vggt_track: # 11
+    anchors:
+      - vggt_tracks.npz
+    vggt_track_samples: 100  # Reduced from 200 to 100 for faster tracking
+  align_cameras: # 12
+    anchors:
+      - v1/cameras_sai_transformed.npz
+      - v2/cameras_sai_transformed.npz
+  unproj_human: # 13
+    anchors:
+      - v1/pointcloud.ply
+      - v2/pointcloud.ply
+    in_door:
+      depth_trunc: 4.0
+      stride: 50  # Increased from 30 to 50 to reduce processed frames
+    out_door:
+      depth_trunc: 5.0
+      stride: 60  # Increased from 40 to 60
+  optim_human_cam: # 14
+    anchors:
+      - v1/cameras.npz
+      - v2/cameras.npz
+    chamfer: true
+    vggt_track: true
+    dba: true
+    p2p: true
+    z_rot_only: true
+  optim_motion: # 15
+    anchors:
+      - optim_params.npz
+    pcscale: 4
+    post_smooth: false
+    optim_kp3d: true
+    use_prior: true
+    reproj: true
+    use_kp3d: true
+    smooth: true
+  align_contact: # 16
+    anchors:
+      - contact_alignment_info.npz
+    loss_threshold: 0.03
