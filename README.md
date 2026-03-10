@@ -54,6 +54,8 @@
 
 # 🗓️ News:
 
+🎆 2026.Mar.10, we have released the code and data now, please have a try!
+
 🎆 2026.Feb.22, EmbodMocap has been accepted to CVPR2026, codes and data will be released soon.
 
 # 🚀 Quick Start
